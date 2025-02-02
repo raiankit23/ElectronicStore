@@ -1,10 +1,6 @@
 package com.lcwd.electronic.store.dtos;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.lcwd.electronic.store.validate.ImageNameValid;
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
