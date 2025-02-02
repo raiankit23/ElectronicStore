@@ -2,10 +2,14 @@ package com.lcwd.electronic.store.services.impl;
 
 import com.lcwd.electronic.store.dtos.UserDto;
 import com.lcwd.electronic.store.entities.User;
+import com.lcwd.electronic.store.exceptions.ResourceNotFoundException;
 import com.lcwd.electronic.store.repositories.UserRepository;
 import com.lcwd.electronic.store.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -67,7 +71,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUser(UserDto userDto, String userId) {
 
-        User user =  userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with given userId"));
+        User user =  userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with given userId"));
             user.setName(userDto.getName());
          // to update email
             user.setEmail(userDto.getEmail());
@@ -78,26 +82,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(String userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with given userId"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with given userId"));
         userRepository.deleteById(user.getUserId());
     }
 
     @Override
-    public List<UserDto> getAllUser() {
-        List<User> users = userRepository.findAll();
+    public List<UserDto> getAllUser(int pageNumber, int pageSize) {
+
+        // pageNumber default starts from 0
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        Page<User> page = userRepository.findAll(pageable);
+
+        List<User> users = page.getContent();
+
         List<UserDto> dtoList = users.stream().map(user -> entityToDto(user)).collect(Collectors.toList());
         return dtoList;
     }
 
     @Override
     public UserDto getUserByID(String userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with given userId"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with given userId"));
         return entityToDto(user);
     }
 
     @Override
     public UserDto getUserByEmail(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found with given email Id and password !!"));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with given email Id and password !!"));
         return entityToDto(user);
     }
 
